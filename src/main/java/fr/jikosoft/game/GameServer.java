@@ -36,7 +36,7 @@ public class GameServer implements Runnable {
 	}
 	
 	public void run() {
-		while(Echo.Server_isRunning) {
+		while(Echo.isRunning) {
 			try {
 				_clients.add(new GameThread(_serverSocket.accept()));
 				if(_clients.size() > _maxPlayer)
@@ -66,7 +66,7 @@ public class GameServer implements Runnable {
 	
 	public synchronized Account getWaitingAccount(int GUID) {
 		for (int i = 0; i < _waitingAccounts.size(); i++) {
-			if(_waitingAccounts.get(i).get_GUID() == GUID)
+			if(_waitingAccounts.get(i).getAccountID() == GUID)
 				return _waitingAccounts.get(i);
 		}
 		return null;

@@ -66,7 +66,7 @@ public class LoginThread implements Runnable {
 	        
 			_hashKey = SocketManager.LOGIN_SEND_HC_PACKET(_writer);
 	        
-	    	while(_reader.read(charCur, 0, 1) != -1 && Echo.Server_isRunning) {
+	    	while(_reader.read(charCur, 0, 1) != -1 && Echo.isRunning) {
 	    		if(_status == Status.error) {
 	    			return;
 	    		}

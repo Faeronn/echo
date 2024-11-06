@@ -256,7 +256,7 @@ public class SQLManager {
 			ps = newTransaction("UPDATE accounts SET `nickname` = ?, `banned` = ?, `subTime` = ? WHERE `guid` = ?;", echoC);
 			ps.setString(1, account.get_nickName());
 			ps.setInt(2, account.isBanned() ? 1 : 0);
-			ps.setInt(4, account.get_GUID());
+			ps.setInt(4, account.getAccountID());
 			ps.executeUpdate();
 		}
 		catch(SQLException e) {
@@ -299,7 +299,7 @@ public class SQLManager {
 			ps.setInt(6, chara.get_color1());
 			ps.setInt(7, chara.get_color2());
 			ps.setInt(8, chara.get_color3());
-			ps.setInt(9, chara.get_account().get_GUID());
+			ps.setInt(9, chara.get_account().getAccountID());
 			ps.setInt(10, chara.get_currentMapID());
 			ps.setInt(11, chara.get_currentCellID());
 			ps.executeUpdate();

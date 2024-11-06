@@ -59,7 +59,7 @@ public class GameThread implements Runnable{
 			char charCur[] = new char[1];
 			
 			SocketManager.GAME_SEND_HG_PACKET(_writer);
-	    	while(_reader.read(charCur, 0, 1) != -1 && Echo.Server_isRunning) {
+	    	while(_reader.read(charCur, 0, 1) != -1 && Echo.isRunning) {
 	    		if (charCur[0] != '\u0000' && charCur[0] != '\n' && charCur[0] != '\r') {
 	    			packet += charCur[0];
 		    	}
@@ -230,7 +230,7 @@ public class GameThread implements Runnable{
 		}
 		
 		Charact charac = new Charact(SQLManager.getNextCharacterGUID(), split[0], Integer.parseInt(split[1]), Integer.parseInt(split[2]), 1,
-									 Integer.parseInt(split[3]), Integer.parseInt(split[4]), Integer.parseInt(split[5]), _account.get_GUID(),
+									 Integer.parseInt(split[3]), Integer.parseInt(split[4]), Integer.parseInt(split[5]), _account.getAccountID(),
 									 Constants.getStartMapID(Integer.parseInt(split[1])), Constants.getStartCellID(Integer.parseInt(split[1])) );
 		_account.addCharacter(charac);
 		World.addCharacter(charac);

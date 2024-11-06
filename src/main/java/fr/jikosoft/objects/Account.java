@@ -10,7 +10,7 @@ import fr.jikosoft.login.LoginThread;
 
 
 public class Account {
-	private int _GUID;
+	private int accountID;
 	private String _name;
 	private String _pass;
 	private String _nickName;
@@ -27,16 +27,14 @@ public class Account {
 	
 	public Account(int guid, String name, String pass, String nickName, boolean banned) {
 		
-		this._GUID = guid;
+		this.accountID = guid;
 		this._name = name;
 		this._pass = pass;
 		this._nickName = nickName;
 		this._banned = banned;
 	}
 	
-	public int get_GUID() {
-		return _GUID;
-	}
+	public int getAccountID() {return accountID;}
 	
 	public String get_name() {
 		return _name;

@@ -28,7 +28,7 @@ public class LoginServer implements Runnable {
 	}
 	
 	public void run() {
-		while(Echo.Server_isRunning) {
+		while(Echo.isRunning) {
 			try {
 				_clients.add(new LoginThread(_serverSocket.accept()));
 			}

@@ -21,7 +21,7 @@ public class Echo {
 	public static String DB_PASS;
 	public static String DB_NAME;
 	
-	public static boolean Server_isRunning = false;
+	public static boolean isRunning = false;
 	public static GameServer gameServer;
 	public static LoginServer loginServer;
 
@@ -39,23 +39,21 @@ public class Echo {
 	    System.out.println("> Config : OK.\n");
 	    
 	    System.out.println("> Connexion à la Base de Données ....");
-	    if(SQLManager.setUpConnection()) 
-			System.out.println("> Connexion : OK.\n");
-		else {
+	    if(!SQLManager.setUpConnection()) {
 			System.out.println(" ! ERREUR : Connexion invalide.\n");
 			System.exit(0);
 		}
+		System.out.println("> Connexion : OK.\n");
 	    
 	    System.out.println("> Création du Monde ....");
 	    long startT = System.currentTimeMillis();
 		World.createWorld();
-		long endT = System.currentTimeMillis();
-		System.out.println("> Monde : OK. (" + (float) ((endT - startT)/1000) + " s)\n");
+		System.out.println("> Monde : OK. (" + (float) ((System.currentTimeMillis() - startT)/1000) + " s)\n");
 		
 		
-		Server_isRunning = true;
-		System.out.println("> Lancement du Serveur JEU .... (Port : " + GAME_PORT + ").\n");
-		gameServer = new GameServer();
+		isRunning = true;
+		//System.out.println("> Lancement du Serveur JEU .... (Port : " + GAME_PORT + ").\n");
+		//gameServer = new GameServer();
 		System.out.println("> Lancement du Serveur CONNEXION .... (Port : " + LOGIN_PORT + ").\n");
 		loginServer = new LoginServer();
 	}
@@ -63,9 +61,7 @@ public class Echo {
 	
 	public static void closeServer() {
 		System.out.println("> Arrêt du Serveur demandé.");
-		if(Server_isRunning) {
-			SQLManager.closeConnection();
-		}
+		if(isRunning) SQLManager.closeConnection();
 		System.out.println("> Arrêt du Serveur : OK.");
 	}
 	

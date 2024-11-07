@@ -7,7 +7,7 @@ import fr.jikosoft.kernel.SQLManager;
 import fr.jikosoft.kernel.World;
 import fr.jikosoft.objects.Maps.Cell;
 
-public class Charact {
+public class Character {
 	private int _GUID;
 	private String _name;
 	private int _sex;
@@ -21,7 +21,7 @@ public class Charact {
 	private Cell _currentCell;
 	private Map<Integer, Stat> _stats = new TreeMap<Integer, Stat>();
 	
-	public Charact(int guid, String name, int cClass, int sex, int level, int color1, int color2, int color3, int accountID,
+	public Character(int guid, String name, int cClass, int sex, int level, int color1, int color2, int color3, int accountID,
 				   short currentMapID, short currentCellID) {
 		this._GUID = guid;
 		this._name = name;

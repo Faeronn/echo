@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Random;
 
-import fr.jikosoft.objects.Charact;
+import fr.jikosoft.objects.Character;
 import fr.jikosoft.objects.Maps;
 
 
@@ -18,11 +18,11 @@ public class SocketManager {
 		}
 	}
 	
-	public static void sendToCharacter(Charact charac, final String packet) {
+	public static void sendToCharacter(Character charac, final String packet) {
 		if (charac != null && charac.get_account() != null && charac.get_account().getGameThread() != null) {
 			send(charac.get_account().getGameThread().get_writer(), packet);
 		}
-}
+	}
 	
 	
 	/*###################################################################################################
@@ -263,10 +263,10 @@ public class SocketManager {
 			System.out.println("Game: Send >> " + packet);	
 	}
 	
-	public static void GAME_SEND_ALK_PACKET(PrintWriter writer, long subscriptionTime, Map<Integer, Charact> characters) {
+	public static void GAME_SEND_ALK_PACKET(PrintWriter writer, long subscriptionTime, Map<Integer, Character> characters) {
 		String packet = "ALK" + subscriptionTime + "|" + characters.size(); //Character List Packet
 		
-		for(Map.Entry<Integer, Charact> entry : characters.entrySet()) {
+		for(Map.Entry<Integer, Character> entry : characters.entrySet()) {
 			packet += entry.getValue().getCharacterData();
 		}
 		send(writer, packet);
@@ -292,7 +292,7 @@ public class SocketManager {
 	}
 	
 	
-	public static void GAME_SEND_ASK_PACKET(PrintWriter writer, Charact charac) {
+	public static void GAME_SEND_ASK_PACKET(PrintWriter writer, Character charac) {
 		String packet = "ASK|" + charac.get_GUID() + "|" + charac.get_name() + "|" + charac.get_level() + "|" + "1" + "|" + 
 				        charac.get_sex() + "|"  + charac.get_class() + charac.get_sex() + "|" + charac.get_color1() + "|" + 
 				        charac.get_color2() + "|" + charac.get_color3() + "|" + "";
@@ -368,7 +368,7 @@ public class SocketManager {
 	}
 	
 	
-	public static void GAME_SEND_Rx_PACKET(Charact charac, String xp) {//Mount XP Given Packet
+	public static void GAME_SEND_Rx_PACKET(Character charac, String xp) {//Mount XP Given Packet
 		final String packet = "Rx" + xp;
 		sendToCharacter(charac, packet);
 		
@@ -425,7 +425,7 @@ public class SocketManager {
 			System.out.println("Game: Send >> " + packet);
 	}
 	
-	public static void GAME_SEND_Ow_PACKET(Charact charac) { //Pods Packet
+	public static void GAME_SEND_Ow_PACKET(Character charac) { //Pods Packet
 		String packet = "Ow" + "0|1000";//charac.get_podsUsed() + "|" + charac.get_maxPods();
 		sendToCharacter(charac, packet);
 		
@@ -441,7 +441,7 @@ public class SocketManager {
 			System.out.println("Game: Send >> " + packet);
 	}
 	
-	public static void GAME_SEND_Im_PACKET(Charact charac, String extraData) { //Message Packet
+	public static void GAME_SEND_Im_PACKET(Character charac, String extraData) { //Message Packet
 		String packet = "Im" + extraData;
 		sendToCharacter(charac, packet);
 		
@@ -449,7 +449,7 @@ public class SocketManager {
 			System.out.println("Game: Send >> " + packet);
 	}
 	
-	public static void GAME_SEND_TB_PACKET(Charact charac) { //Tutorial Begin Packet
+	public static void GAME_SEND_TB_PACKET(Character charac) { //Tutorial Begin Packet
 		String packet = "TB";
 		sendToCharacter(charac, packet);
 		
@@ -465,7 +465,7 @@ public class SocketManager {
 			System.out.println("Game: Send >> " + packet);
 	}
 	
-	public static void GAME_SEND_As_PACKET(Charact charac) { //Stats Packet
+	public static void GAME_SEND_As_PACKET(Character charac) { //Stats Packet
 		String packet = "As" + charac.getCharacterStats();
 		sendToCharacter(charac, packet);
 		
@@ -473,7 +473,7 @@ public class SocketManager {
 			System.out.println("Game: Send >> " + packet);
 	}
 	
-	public static void GAME_SEND_ILS_PACKET(Charact charac) { //Regen Rate Packet
+	public static void GAME_SEND_ILS_PACKET(Character charac) { //Regen Rate Packet
 		String packet = "ILS2000";
 		sendToCharacter(charac, packet);
 		
@@ -522,10 +522,10 @@ public class SocketManager {
 			System.out.println("Game: Send >> " + packet);
 	}
 	
-	public static void GAME_SEND_GM_PACKET(Maps map, Charact character) { //Map Infos (players, npcs, ...)
+	public static void GAME_SEND_GM_PACKET(Maps map, Character character) { //Map Infos (players, npcs, ...)
 		String packet = "GM|+" + character.getCharacterGMData();
 		
-		for(Charact c : map.getCharacters()) {
+		for(Character c : map.getCharacters()) {
 			if(c != character) {
 				sendToCharacter(c, packet);	
 				
@@ -543,7 +543,7 @@ public class SocketManager {
 			System.out.println("Game: Send >> " + packet);
 	}
 	
-	public static void GAME_SEND_EW_PACKET(PrintWriter writer, Charact character) { //Map Loaded Packet
+	public static void GAME_SEND_EW_PACKET(PrintWriter writer, Character character) { //Map Loaded Packet
 		String packet = "EW+" + character.get_GUID();
 		send(writer, packet);
 		

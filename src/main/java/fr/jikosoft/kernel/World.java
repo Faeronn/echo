@@ -5,11 +5,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import fr.jikosoft.objects.Account;
-import fr.jikosoft.objects.Charact;
+import fr.jikosoft.objects.Character;
 import fr.jikosoft.objects.Maps;
 
 public class World {
-	private static Map<Integer, Charact> Characters = new TreeMap<Integer, Charact>();
+	private static Map<Integer, Character> Characters = new TreeMap<Integer, Character>();
 	private static Map<Integer, Account> Accounts = new TreeMap<Integer, Account>();
 	private static ArrayList<String> IP_Bans = new ArrayList<String>();
 	private static Map<Short, Maps> Maps = new TreeMap<Short, Maps>();
@@ -55,17 +55,17 @@ public class World {
 		return Maps.get(guid);
 	}
 	
-	public static void addCharacter(Charact ch) {
+	public static void addCharacter(Character ch) {
 		Characters.put(ch.get_GUID(), ch);
 	}
 	
-	public static void deleteCharacter(Charact ch) {
+	public static void deleteCharacter(Character ch) {
 		Characters.remove(ch.get_GUID(), ch);
 	}
 
 	public static Account getAccountByName(String accountName) {
 		for(int i=1; i <= Accounts.size(); i++) {
-			String name = Accounts.get(i).get_name();
+			String name = Accounts.get(i).getUsername();
 			
 			if(name.equals(accountName)) {
 				return Accounts.get(i);
@@ -88,7 +88,7 @@ public class World {
 	
 	public static boolean compareNicknameToDB(String nick) {
 		for(int i=1; i <= Accounts.size(); i++) {
-			String nickName = Accounts.get(i).get_nickName();
+			String nickName = Accounts.get(i).getNickname();
 			
 			if(nickName.equals(nick)) 
 				return true;

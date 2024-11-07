@@ -49,16 +49,16 @@ public class Maps {
 		return _cells.get(guid);
 	}
 	
-	public void addPlayer(Charact character) {
+	public void addPlayer(Character character) {
 		SocketManager.GAME_SEND_GM_PACKET(this, character);
 		character.get_currentCell().addCharacter(character);
 	}
 	
-	public ArrayList<Charact> getCharacters() {
-		ArrayList<Charact> characterList = new ArrayList<Charact>();
+	public ArrayList<Character> getCharacters() {
+		ArrayList<Character> characterList = new ArrayList<Character>();
 		
 		for(Cell cell : _cells.values()) {
-			for(Charact character : cell.getCharacters().values()) {
+			for(Character character : cell.getCharacters().values()) {
 				characterList.add(character);
 			}
 		}
@@ -70,7 +70,7 @@ public class Maps {
 		packet.append("GM");
 		
 		for(Cell cell : _cells.values()) {                                            //FIXME: no cells in _cells
-			for(Charact character : cell.getCharacters().values()) {
+			for(Character character : cell.getCharacters().values()) {
 				packet.append("|+").append(character.getCharacterGMData());
 			}
 		}
@@ -80,7 +80,7 @@ public class Maps {
 	
 	public static class Cell {
 		private short _ID;
-		private Map<Integer, Charact> _characters = new TreeMap<Integer, Charact>(Collections.reverseOrder());
+		private Map<Integer, Character> _characters = new TreeMap<Integer, Character>(Collections.reverseOrder());
 		private boolean _isWalkable = true;
 		private short _mapID;
 		
@@ -94,13 +94,13 @@ public class Maps {
 			return _ID;
 		}
 		
-		public void addCharacter(Charact character) {
+		public void addCharacter(Character character) {
 			_characters.put(character.get_GUID(), character);
 		}
 		
-		public Map<Integer, Charact> getCharacters() {
+		public Map<Integer, Character> getCharacters() {
 			if(_characters == null) {
-				return new TreeMap<Integer, Charact>();
+				return new TreeMap<Integer, Character>();
 			}
 			return _characters;
 		}

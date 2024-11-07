@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import fr.jikosoft.objects.Account;
-import fr.jikosoft.objects.Charact;
+import fr.jikosoft.objects.Character;
 import fr.jikosoft.objects.Maps;
 
 
@@ -21,15 +21,12 @@ public class SQLManager {
 												+ Echo.DB_NAME, Echo.DB_USER, Echo.DB_PASS);
 			echoC.setAutoCommit(false);
 			
-			if(!echoC.isValid(1000))
-				throw new Exception("Timeout");
+			if(!echoC.isValid(1000)) throw new Exception("Timeout");
 		
 			return true;
 		}
 		catch(Exception e) {
 			System.out.println(" ! SQL ERROR: " + e.getMessage() + ".\n");
-			e.printStackTrace();
-			
 			return false;
 		}
 	}
@@ -47,7 +44,7 @@ public class SQLManager {
 			System.out.println("close : 5");
 		}
 		catch (Exception e) {
-			System.out.println("Erreur � la fermeture de la connexion SQL: " + e.getMessage());
+			System.out.println("Erreur à la fermeture de la connexion SQL: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -124,10 +121,6 @@ public class SQLManager {
 	public static void load_Accounts() {
 		try {
 			ResultSet result = SQLManager.executeQuery("SELECT * FROM account;");
-			/*String baseQuery = "UPDATE accounts " +
-							   "SET `reload_needed` = 0 " +
-							   "WHERE guid = ?;";
-			PreparedStatement ps = newTransaction(baseQuery, dynaC);*/
 			
 			while(result.next()) {
 				World.addAccount(new Account(
@@ -164,7 +157,7 @@ public class SQLManager {
 			ResultSet result = SQLManager.executeQuery("SELECT * FROM characters;");
 			
 			while(result.next()) {
-				Charact charac = new Charact(
+				Character charac = new Character(
 						result.getInt("guid"),
 						result.getString("name"),
 						result.getInt("class"),
@@ -254,7 +247,7 @@ public class SQLManager {
 		PreparedStatement ps = null;
 		try {
 			ps = newTransaction("UPDATE accounts SET `nickname` = ?, `banned` = ?, `subTime` = ? WHERE `guid` = ?;", echoC);
-			ps.setString(1, account.get_nickName());
+			ps.setString(1, account.getNickname());
 			ps.setInt(2, account.isBanned() ? 1 : 0);
 			ps.setInt(4, account.getAccountID());
 			ps.executeUpdate();
@@ -268,7 +261,7 @@ public class SQLManager {
 	}
 	
 	
-	public static void delete_Character(Charact chara) {
+	public static void delete_Character(Character chara) {
 		PreparedStatement ps = null;
 		try {
 			ps = newTransaction("DELETE FROM characters WHERE guid = ?", echoC);
@@ -283,7 +276,7 @@ public class SQLManager {
 		}
 	}
 	
-	public static void add_Character(Charact chara) {
+	public static void add_Character(Character chara) {
 		PreparedStatement ps = null;
 		try {
 			String query = "INSERT INTO characters(`guid`, `name`, `sex`, `class`, `level`,  `color1`, `color2`, `color3`, `account`, " + 

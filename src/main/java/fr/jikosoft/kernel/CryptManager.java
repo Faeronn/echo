@@ -12,12 +12,11 @@ public class CryptManager {
 	
 	public static String toUtf(String in) { //ANSI(Unicode) -> UTF-8
 		String out = "";
-
 		try {
 			out = new String(in.getBytes("UTF8"));
 		}
 		catch(Exception e) {
-			System.out.println (" ! ERROR : Conversion en UTF-8 echou�e ! : " + e.getMessage());
+			System.out.println (" ! ERROR : Conversion en UTF-8 echouée ! : " + e.getMessage());
 		}
 		
 		return out;

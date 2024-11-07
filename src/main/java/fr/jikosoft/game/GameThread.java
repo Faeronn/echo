@@ -18,7 +18,7 @@ import fr.jikosoft.kernel.SQLManager;
 import fr.jikosoft.kernel.SocketManager;
 import fr.jikosoft.kernel.World;
 import fr.jikosoft.objects.Account;
-import fr.jikosoft.objects.Charact;
+import fr.jikosoft.objects.Character;
 import fr.jikosoft.objects.Maps.Cell;
 
 public class GameThread implements Runnable{
@@ -27,7 +27,7 @@ public class GameThread implements Runnable{
 	private PrintWriter _writer;
 	private Thread _thread;
 	private Account _account;
-	private Charact _character;
+	private Character _character;
 	
 	public GameThread(Socket socket) {
 		try {
@@ -78,7 +78,6 @@ public class GameThread implements Runnable{
 	    		_writer.close();
 	    		
 	    		if(_account != null) {
-	    			_account.setCurrentCharacter(null);
 	    			//_account.setGameThread(null);
 	    			_account.setLoginThread(null); 
 	    		}
@@ -229,7 +228,7 @@ public class GameThread implements Runnable{
 			return;
 		}
 		
-		Charact charac = new Charact(SQLManager.getNextCharacterGUID(), split[0], Integer.parseInt(split[1]), Integer.parseInt(split[2]), 1,
+		Character charac = new Character(SQLManager.getNextCharacterGUID(), split[0], Integer.parseInt(split[1]), Integer.parseInt(split[2]), 1,
 									 Integer.parseInt(split[3]), Integer.parseInt(split[4]), Integer.parseInt(split[5]), _account.getAccountID(),
 									 Constants.getStartMapID(Integer.parseInt(split[1])), Constants.getStartCellID(Integer.parseInt(split[1])) );
 		_account.addCharacter(charac);
@@ -248,7 +247,7 @@ public class GameThread implements Runnable{
 		if(!_account.getCharacters().containsKey(id)) {
 			SocketManager.GAME_SEND_ADE_PACKET(_writer);
 		}
-		Charact charac = _account.getCharacters().get(id);
+		Character charac = _account.getCharacters().get(id);
 		
 		if (charac.get_level() < 20 || (charac.get_level() >= 20)) { // answer.equals(_account.get_answer().replace(" ", "%20"))
 			_account.deleteCharacter(id);
@@ -284,7 +283,7 @@ public class GameThread implements Runnable{
 			SocketManager.GAME_SEND_Im_PACKET(_character, "0153;" + "IP");
 			
 			//Tutorial
-			if(this._character.get_account().get_currentIP() == "") //FIXME
+			if(this._character.get_account().getCurrentIPAddress() == "") //FIXME
 				SocketManager.GAME_SEND_TB_PACKET(_character);
 			
 		}
@@ -306,7 +305,7 @@ public class GameThread implements Runnable{
 			else {
 				String ip = _socket.getInetAddress().getHostAddress();
 				_account.setGameThread(this);
-				_account.setCurrentIP(ip);
+				_account.setCurrentIPAddress(ip);
 				Echo.gameServer.deleteWaitingAccount(_account);
 				SocketManager.GAME_SEND_ATK_PACKET(_writer);
 			}

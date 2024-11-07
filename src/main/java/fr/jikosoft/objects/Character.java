@@ -3,7 +3,6 @@ package fr.jikosoft.objects;
 import java.util.Map;
 import java.util.TreeMap;
 
-import fr.jikosoft.kernel.SQLManager;
 import fr.jikosoft.kernel.World;
 import fr.jikosoft.objects.Maps.Cell;
 

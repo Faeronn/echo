@@ -17,7 +17,7 @@ public class Echo {
 	public static String DB_NAME;
 	public static int LOGIN_PORT;
 	public static int GAME_PORT;
-	
+
 	public static boolean isRunning = false;
 	public static LoginServer loginServer;
 	public static GameServer gameServer;
@@ -30,10 +30,7 @@ public class Echo {
 		System.out.println("> Config : OK.\n");
 
 		System.out.println("> Connexion à la Base de Données ....");
-		if(!SQLManager.setUpConnection()) {
-			System.out.println(" ! ERREUR : Connexion invalide.\n");
-			System.exit(0);
-		}
+		if(!DatabaseManager.connect()) System.exit(1);
 		System.out.println("> Connexion : OK.\n");
 
 		System.out.println("> Création du Monde ....");
@@ -47,10 +44,10 @@ public class Echo {
 		System.out.println("> Lancement du Serveur CONNEXION .... (Port : " + LOGIN_PORT + ").\n");
 		loginServer = new LoginServer();
 	}
-	
+
 	public static void closeServer() {
 		System.out.println("> Arrêt du Serveur demandé.");
-		if(isRunning) SQLManager.closeConnection();
+		if(isRunning) DatabaseManager.disconnect();
 		System.out.println("> Arrêt du Serveur : OK.");
 	}
 
@@ -67,12 +64,12 @@ public class Echo {
 			DB_HOST = properties.getProperty("DB_HOST");
 			DB_USER = properties.getProperty("DB_USER");
 			DB_NAME = properties.getProperty("DB_NAME");
-
-			
-			if (DEBUG_MODE) System.out.println("> @! Mode DEBUG activé.");
 			if (DB_HOST == null || DB_USER == null || DB_NAME == null) throw new IllegalArgumentException("Veuillez vérifier le fichier config. Paramètres manquants.");
 
-			properties.forEach((key, value) -> System.out.println("    - Param : " + key + " - " + value));
+			if (DEBUG_MODE) {
+				System.out.println("> @! Mode DEBUG activé.");
+				properties.forEach((key, value) -> System.out.println("    - Param : " + key + " - " + value));
+			}
 		} catch (Exception e) {
 			System.out.println(" ! ERREUR : " + e.getMessage() + ".\n");
 			System.exit(1);

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
+import fr.jikosoft.database.AccountsManager;
 import fr.jikosoft.objects.Account;
 import fr.jikosoft.objects.Character;
 import fr.jikosoft.objects.Maps;
@@ -22,7 +23,7 @@ public class World {
 		System.out.println("\t\t> Chargement des Maps : OK. (" + World.Maps.size() + ")\n");
 
 		System.out.println("\t\t> Chargement des Comptes ....");
-		SQLManager.load_Accounts();
+		AccountsManager.getAll();
 		System.out.println("\t\t> Chargement des Comptes : OK. (" + World.Accounts.size() + ")\n");
 
 		System.out.println("\t\t> Chargement des Personnages ....");

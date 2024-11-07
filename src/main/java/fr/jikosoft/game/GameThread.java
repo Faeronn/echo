@@ -11,10 +11,11 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 
+import fr.jikosoft.database.CharactersManager;
 import fr.jikosoft.kernel.Constants;
 import fr.jikosoft.kernel.CryptManager;
 import fr.jikosoft.kernel.Echo;
-import fr.jikosoft.kernel.SQLManager;
+import fr.jikosoft.kernel.DatabaseManager;
 import fr.jikosoft.kernel.SocketManager;
 import fr.jikosoft.kernel.World;
 import fr.jikosoft.objects.Account;
@@ -228,12 +229,12 @@ public class GameThread implements Runnable{
 			return;
 		}
 		
-		Character charac = new Character(SQLManager.getNextCharacterGUID(), split[0], Integer.parseInt(split[1]), Integer.parseInt(split[2]), 1,
+		Character charac = new Character(CharactersManager.getNextCharacterGUID(), split[0], Integer.parseInt(split[1]), Integer.parseInt(split[2]), 1,
 									 Integer.parseInt(split[3]), Integer.parseInt(split[4]), Integer.parseInt(split[5]), _account.getAccountID(),
 									 Constants.getStartMapID(Integer.parseInt(split[1])), Constants.getStartCellID(Integer.parseInt(split[1])) );
 		_account.addCharacter(charac);
 		World.addCharacter(charac);
-		SQLManager.add_Character(charac);
+		CharactersManager.add_Character(charac);
 		
 		SocketManager.GAME_SEND_AAK_PACKET(_writer);
 		sendCharacterList();
@@ -252,7 +253,7 @@ public class GameThread implements Runnable{
 		if (charac.get_level() < 20 || (charac.get_level() >= 20)) { // answer.equals(_account.get_answer().replace(" ", "%20"))
 			_account.deleteCharacter(id);
 			World.deleteCharacter(charac);
-			SQLManager.delete_Character(charac);
+			CharactersManager.delete_Character(charac);
 			sendCharacterList();
 		}
 		else

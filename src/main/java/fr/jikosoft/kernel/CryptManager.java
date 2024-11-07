@@ -22,10 +22,6 @@ public class CryptManager {
 		return out;
 	}
 	
-	
-	
-	
-	
 	public static String toUnicode(String in) {
 		String out = "";
 

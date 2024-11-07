@@ -6,10 +6,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import fr.jikosoft.database.AccountsManager;
 import fr.jikosoft.kernel.Constants;
 import fr.jikosoft.kernel.CryptManager;
 import fr.jikosoft.kernel.Echo;
-import fr.jikosoft.kernel.SQLManager;
+import fr.jikosoft.kernel.DatabaseManager;
 import fr.jikosoft.kernel.SocketManager;
 import fr.jikosoft.kernel.World;
 import fr.jikosoft.objects.Account;
@@ -163,7 +164,7 @@ public class LoginThread implements Runnable {
 			    }
 			    
 			    this.account.setNickname(packet);
-			    SQLManager.save_Account(this.account);
+			    AccountsManager.update(this.account);
 			    this.status = Status.wait_server;
 			    tryToLog();
 				break;

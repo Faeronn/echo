@@ -2,34 +2,28 @@ package fr.jikosoft.kernel;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Properties;
 
 import fr.jikosoft.game.GameServer;
 import fr.jikosoft.login.LoginServer;
 
 public class Echo {
 	private static final String CONFIG_FILE = "config.txt";
-	
-	public static boolean DEBUG_MODE;
-	
 	public static String HOST_IP = "127.0.0.1";
-	public static int GAME_PORT;
-	public static int LOGIN_PORT;
-	
+	public static boolean DEBUG_MODE;
 	public static String DB_HOST;
 	public static String DB_USER;
 	public static String DB_PASS;
 	public static String DB_NAME;
+	public static int LOGIN_PORT;
+	public static int GAME_PORT;
 	
 	public static boolean isRunning = false;
-	public static GameServer gameServer;
 	public static LoginServer loginServer;
+	public static GameServer gameServer;
 
 	public static void main(String[] args) {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				closeServer();
-			}
-		});
+		Runtime.getRuntime().addShutdownHook(new Thread(Echo::closeServer, "Shutdown-Hook-Thread"));
 		System.out.println("\n############################################################################");
 		System.out.println("> Chargement de la config ....");
 		readConfig();
@@ -59,61 +53,29 @@ public class Echo {
 		if(isRunning) SQLManager.closeConnection();
 		System.out.println("> Arrêt du Serveur : OK.");
 	}
-	
+
 	private static void readConfig() {
-		try {
-			BufferedReader config = new BufferedReader(new FileReader(CONFIG_FILE));
-			String line;
+		Properties properties = new Properties();
+		try (BufferedReader configReader = new BufferedReader(new FileReader(CONFIG_FILE))) {
+			properties.load(configReader);
+
+			DEBUG_MODE = Boolean.parseBoolean(properties.getProperty("DEBUG_MODE", "false"));
+			LOGIN_PORT = Integer.parseInt(properties.getProperty("LOGIN_PORT", "0"));
+			GAME_PORT = Integer.parseInt(properties.getProperty("GAME_PORT", "0"));
+			HOST_IP = properties.getProperty("HOST_IP", HOST_IP);
+			DB_PASS = properties.getProperty("DB_PASS", "");
+			DB_HOST = properties.getProperty("DB_HOST");
+			DB_USER = properties.getProperty("DB_USER");
+			DB_NAME = properties.getProperty("DB_NAME");
+
 			
-			while ((line = config.readLine()) != null) {
-				if(line.split("=").length != 2)
-					continue;
-				
-				String param = line.split("=")[0].trim();
-				String value = line.split("=")[1].trim();
-				System.out.println("    - Param : " + param + " - " + value);
-				
-				switch(param.toUpperCase()) {
-					case "DEBUG_MODE":
-						if(value.equalsIgnoreCase("true")) {
-							DEBUG_MODE = true;
-							System.out.println("> @!  Mode DEBUG activé.");
-						}
-						break;
-					case "HOST_IP":
-						HOST_IP = value;
-						break;
-					case "GAME_PORT":
-						GAME_PORT = Integer.parseInt(value);
-						break;
-					case "LOGIN_PORT":
-						LOGIN_PORT = Integer.parseInt(value);
-						break;
-					case "DB_HOST":
-						DB_HOST = value;
-						break;
-					case "DB_USER":
-						DB_USER = value;
-						break;
-					case "DB_PASS":
-						if(value == null)
-							value = "";
-						DB_PASS = value;
-						break;
-					case "DB_NAME":
-						DB_NAME = value;
-						break;
-				}
-			}
-			config.close();
-			
-			if(DB_HOST == null || DB_USER == null || DB_PASS == null || DB_NAME == null)
-				throw new Exception("Veuillez vérifier le fichier config.");
-		}
-		catch (Exception e) {
+			if (DEBUG_MODE) System.out.println("> @! Mode DEBUG activé.");
+			if (DB_HOST == null || DB_USER == null || DB_NAME == null) throw new IllegalArgumentException("Veuillez vérifier le fichier config. Paramètres manquants.");
+
+			properties.forEach((key, value) -> System.out.println("    - Param : " + key + " - " + value));
+		} catch (Exception e) {
 			System.out.println(" ! ERREUR : " + e.getMessage() + ".\n");
 			System.exit(1);
 		}
 	}
-
 }

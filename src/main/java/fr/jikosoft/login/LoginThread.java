@@ -42,12 +42,7 @@ public class LoginThread implements Runnable {
 		}
 		catch(IOException e) {
 			System.out.println("IOException : " + e.getMessage());
-			try {
-				if(!this.socket.isClosed()) this.socket.close();
-			}
-			catch (IOException e1) {
-				System.out.println("IOException : " + e1.getMessage());
-			}
+			kick();
 		}
 		finally {
 			if(this.account != null) {
@@ -143,7 +138,6 @@ public class LoginThread implements Runnable {
 				break;
 				
 			case wait_server:
-				System.out.println("PHASE " + this.status);
 				switch (packet.substring(0, 2)) {
 					case "AF": {
 						if(!World.compareNicknameToDB(packet.substring(2))) {
@@ -178,10 +172,7 @@ public class LoginThread implements Runnable {
 	}
 	
 	private void tryToLog() {
-		
 		String ip = this.socket.getInetAddress().getHostAddress();
-		System.out.println(ip);
-		
 		if(!this.gameVersion.equalsIgnoreCase(Constants.REQUIRED_CLIENT_VERSION)) {
 			SocketManager.LOGIN_SEND_AlEv_PACKET(this.writer); // Bad GameVersion Packet
 			kick();
@@ -193,9 +184,9 @@ public class LoginThread implements Runnable {
 			kick();
 			return;
 		}
-		
+
 		this.account = World.getAccountByName(this.accountName.toLowerCase());
-		
+
 		if(!CryptManager.encryptPassword(this.account.getPassword(), this.hashKey).equals(this.password)) {
 			SocketManager.LOGIN_SEND_AlEf_PACKET(this.writer); //Bad Account / Password Packet
 			kick();
@@ -208,7 +199,7 @@ public class LoginThread implements Runnable {
 			return;
 		}
 		
-		if(this.account.getNickname().equals("")) {
+		if("".equals(this.account.getNickname()) || this.account.getNickname() == null) {
 			SocketManager.LOGIN_SEND_AlEr_PACKET(this.writer); //Choose NickName Packet
 			this.status = Status.wait_nickname;
 			return;
@@ -234,6 +225,7 @@ public class LoginThread implements Runnable {
 	    try {
 			this.socket.shutdownInput();
 			this.socket.close();
+			Echo.loginServer.removeClient(this);
 		}
 	    catch (final Exception e) {
 			System.out.println("kick: " + e.getMessage());

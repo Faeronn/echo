@@ -10,7 +10,6 @@ import fr.jikosoft.database.AccountsManager;
 import fr.jikosoft.kernel.Constants;
 import fr.jikosoft.kernel.CryptManager;
 import fr.jikosoft.kernel.Echo;
-import fr.jikosoft.kernel.DatabaseManager;
 import fr.jikosoft.kernel.SocketManager;
 import fr.jikosoft.kernel.World;
 import fr.jikosoft.objects.Account;
@@ -23,6 +22,7 @@ public class LoginThread implements Runnable {
 	private Account account;
 	private Status status;
 
+	private volatile boolean isRunning = true;
 	private String hashKey;
 	
 	private String gameVersion;
@@ -38,6 +38,7 @@ public class LoginThread implements Runnable {
 			thread = new Thread(this);
 			thread.setDaemon(true);
 			thread.start();
+			this.isRunning = true;
 		}
 		catch(IOException e) {
 			System.out.println("IOException : " + e.getMessage());
@@ -65,7 +66,7 @@ public class LoginThread implements Runnable {
 	        
 			this.hashKey = SocketManager.LOGIN_SEND_HC_PACKET(this.writer);
 	        
-	    	while(this.reader.read(charCur, 0, 1) != -1 && Echo.isRunning) {
+	    	while(this.isRunning && this.reader.read(charCur, 0, 1) != -1 && Echo.isRunning) {
 	    		if(this.status == Status.error) return;
 
 	    		if (charCur[0] != '\u0000' && charCur[0] != '\n' && charCur[0] != '\r') packet += charCur[0];
@@ -77,42 +78,17 @@ public class LoginThread implements Runnable {
 		    	}
 	    	}
     	}
-		
-		catch(IOException e) {
-			System.out.println("IOException : " + this + "\n" + e.getMessage());
-			e.printStackTrace();
-    		try {
-	    		this.reader.close();
-	    		this.writer.close();
-	    		
-	    		if(this.account != null) {
-	    			//this.account.setGameThread(null);
-	    			this.account.setLoginThread(null);
-	    			this.account.setCurrentIPAddress("");
-
-					System.out.println("Pourquoi tu fais �a chef ?");
-	    		}
-	    		if(!this.socket.isClosed()) this.socket.close();
-	    		
-				this.thread.interrupt();
-	    	}
-    		catch(IOException e1) {
-    			System.out.println("IOException : " + e1.getMessage());
-    		}
+		catch(IOException error) {
+			System.out.println("IOException : " + this + ": " + error.getMessage());
     	}
     	finally {
-    		System.out.println("finally : " + this + "\n");
     		try {
 	    		this.reader.close();
 	    		this.writer.close();
 	    		
 	    		if(this.account != null) {
-	    			//this.account.setGameThread(null);
 	    			this.account.setLoginThread(null);
 	    			this.account.setCurrentIPAddress("");
-	    			
-					System.out.println("Pourquoi tu fais �a chef 2?");
-	    			
 	    		}
 	    		if(!this.socket.isClosed())
 	    			this.socket.close();
@@ -130,19 +106,16 @@ public class LoginThread implements Runnable {
 		switch(this.status) {
 			case wait_version://Game Version
 				this.gameVersion = packet;
-				System.out.println("wait_version: " + this.gameVersion);
 				this.status = Status.wait_account;
 				break;
 				
 			case wait_account://Account Name
 				this.accountName = packet;
-				System.out.println("wait_account: " + this.accountName);
 				this.status = Status.wait_password;
 				break;
 
 			case wait_password://HashPass : #1hashpass
 				this.password = packet;
-				System.out.println("wait_password: " + this.accountName);
 				this.status = Status.wait_server;
 				break;
 				
@@ -215,9 +188,6 @@ public class LoginThread implements Runnable {
 			return;
 		}
 		
-		//SocketManager.LOGIN_SEND_Af_PACKET(this.writer, 1, 1, 0, "", -1);
-		//client.send("Af0|0|0|1|-1");
-		
 		if(World.getAccountByName(this.accountName.toLowerCase()) == null) {
 			SocketManager.LOGIN_SEND_AlEf_PACKET(this.writer); //Bad Account / Password Packet
 			kick();
@@ -251,26 +221,16 @@ public class LoginThread implements Runnable {
 			return;
 		}
 		
-		/*if(this.account.isLogged() && this.account.getGameThread() != null) {
-			this.account.getGameThread().closeSocket();
-		}*/
-		
 		this.account.setLogged(true);
 		this.account.setLoginThread(this);
 		
-		
-		//Echo.loginServer.getClients();
-		
-		
-		//client.send("Af0|0|0|1|-1");
-		SocketManager.LOGIN_SEND_Ad_PACKET(this.writer, this.account.getNickname());
-		SocketManager.LOGIN_SEND_Ac_PACKET(this.writer);
-		SocketManager.LOGIN_SEND_AH_PACKET(this.writer, 5, 1, 110, 1); //AH[ID];[State];[Completion];[CanLog]
-		//SocketManager.LOGIN_SEND_AlK_PACKET(this.writer, (this.account.get_gmLevel() > 0 ? true : false));
-		//SocketManager.LOGIN_SEND_AQ_PACKET(this.writer, this.account.get_question());
+		//SocketManager.LOGIN_SEND_Ad_PACKET(this.writer, this.account.getNickname());
+		//SocketManager.LOGIN_SEND_Ac_PACKET(this.writer);
+		//SocketManager.LOGIN_SEND_AH_PACKET(this.writer, 5, 1, 110, 1);
 	}
 	
 	public void kick() {
+		this.isRunning = false;
 	    try {
 			this.socket.shutdownInput();
 			this.socket.close();

@@ -21,7 +21,7 @@ public class Character {
 	private Map<Integer, Stat> _stats = new TreeMap<Integer, Stat>();
 	
 	public Character(int guid, String name, int cClass, int sex, int level, int color1, int color2, int color3, int accountID,
-				   short currentMapID, short currentCellID) {
+				   int currentMapID, short currentCellID) {
 		this._GUID = guid;
 		this._name = name;
 		this._class = cClass;

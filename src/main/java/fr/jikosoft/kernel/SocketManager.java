@@ -103,7 +103,7 @@ public class SocketManager {
 		
 	}
 	
-	public static void LOGIN_SEND_Af_PACKET(PrintWriter writer, int position, int totalSub, int totalNonSub, String subscribe, int queueID) {
+	public static void LOGIN_SEND_Af_PACKET(PrintWriter writer, int position, int totalSub, int totalNonSub, int subscribe, int queueID) {
 		String packet = "Af" + position + "|" + totalSub + "|"+ totalNonSub + "|" + subscribe + "|" + queueID;
 		send(writer, packet);
 		

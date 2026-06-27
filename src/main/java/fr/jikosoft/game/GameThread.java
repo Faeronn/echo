@@ -271,6 +271,7 @@ public class GameThread implements Runnable{
 	
 	private void sendCharacterList() { // ALK + subscriptionTime + | + Character Number + | + characterInfo
 		//SocketManager.GAME_SEND_ALK_PACKET(_writer, _account.get_subscriptionTime(), _account.getCharacters());
+		SocketManager.GAME_SEND_ALK_PACKET(_writer, 1000, _account.getCharacters());
 	}
 	
 	private void selectCharacter(String packet) {
@@ -369,7 +370,7 @@ public class GameThread implements Runnable{
 			return;
 		
 		SocketManager.GAME_SEND_GM_PACKET(_writer, _character.get_currentMap().getCharacterGMPackets());
-		SocketManager.GAME_SEND_GM_PACKET(_writer, "GM|+407;1;0;-1;875;-4;9059^100;0;860000;3792b9;fed880;0,0,0,0,0;;0");
+		//SocketManager.GAME_SEND_GM_PACKET(_writer, "GM|+407;1;0;-1;875;-4;9059^100;0;860000;3792b9;fed880;0,0,0,0,0;;0");
 		SocketManager.GAME_SEND_GDK_PACKET(_writer);
 	}
 	

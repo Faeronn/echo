@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import fr.jikosoft.database.AccountsManager;
+import fr.jikosoft.database.MapsManager;
 import fr.jikosoft.objects.Account;
 import fr.jikosoft.objects.Character;
 import fr.jikosoft.objects.Maps;
@@ -13,13 +14,13 @@ public class World {
 	private static Map<Integer, Character> Characters = new TreeMap<Integer, Character>();
 	private static Map<Integer, Account> Accounts = new TreeMap<Integer, Account>();
 	private static ArrayList<String> IP_Bans = new ArrayList<String>();
-	private static Map<Short, Maps> Maps = new TreeMap<Short, Maps>();
+	private static Map<Integer, Maps> Maps = new TreeMap<Integer, Maps>();
 	
 	public static void createWorld() {
 		System.out.println("\t#### Chargement des Données Dynamiques ####");
 
 		System.out.println("\t\t> Chargement des Maps ....");
-		//SQLManager.load_Maps();
+		MapsManager.getAll();
 		System.out.println("\t\t> Chargement des Maps : OK. (" + World.Maps.size() + ")\n");
 
 		System.out.println("\t\t> Chargement des Comptes ....");
@@ -52,7 +53,7 @@ public class World {
 			Maps.put(map.get_ID(), map);
 	}
 	
-	public static Maps getMap(short guid) {
+	public static Maps getMap(int guid) {
 		return Maps.get(guid);
 	}
 	

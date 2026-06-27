@@ -147,9 +147,9 @@ public class LoginThread implements Runnable {
 						break;
 					}
 					case "AX": {
-						SocketManager.LOGIN_SEND_AXK_PACKET(this.writer, this.account.getAccountID()); //Encrypted Game IP:Port Packet
 						Echo.gameServer.addWaitingAccount(this.account);
-						//SocketManager.LOGIN_SEND_AYK_PACKET(this.writer, this.account.get_GUID()); //Unencrypted Game IP:Port Packet
+						//SocketManager.LOGIN_SEND_AXK_PACKET(this.writer, this.account.getAccountID()); //Encrypted Game IP:Port Packet
+						SocketManager.LOGIN_SEND_AYK_PACKET(this.writer, this.account.getAccountID()); //Unencrypted Game IP:Port Packet
 						break;
 					}
 					case "Af": {
@@ -158,6 +158,7 @@ public class LoginThread implements Runnable {
 					}
 					case "Ax": {
 						//SocketManager.LOGIN_SEND_AxK_PACKET(this.writer, this.account.get_subscriptionTime(),  5, this.account.getCharacters().size());
+						SocketManager.LOGIN_SEND_AxK_PACKET(this.writer, 1000,  5, this.account.getCharacters().size());
 						break;
 					}
 					default:
@@ -178,7 +179,7 @@ public class LoginThread implements Runnable {
 			kick();
 			return;
 		}
-		
+
 		if(World.getAccountByName(this.accountName.toLowerCase()) == null) {
 			SocketManager.LOGIN_SEND_AlEf_PACKET(this.writer); //Bad Account / Password Packet
 			kick();
@@ -192,32 +193,35 @@ public class LoginThread implements Runnable {
 			kick();
 			return;
 		}
-		
+
 		if(this.account.isBanned() || World.compareIPtoIPBans(ip)) {
 			SocketManager.LOGIN_SEND_AlEb_PACKET(this.writer); //Banned Account Packet
 			kick();
 			return;
 		}
-		
+
 		if("".equals(this.account.getNickname()) || this.account.getNickname() == null) {
 			SocketManager.LOGIN_SEND_AlEr_PACKET(this.writer); //Choose NickName Packet
 			this.status = Status.wait_nickname;
 			return;
 		}
-		
+
 		if(this.account.isLogged() && this.account.getGameThread() == null) {
+			System.out.println("wtf");
 			SocketManager.LOGIN_SEND_AlEd_PACKET(this.writer); //"You've just disconnected a character already using this account"  Packet
 			//Echo.loginServer.removeClient(this);
 			//Echo.loginServer.removeClient(World.getAccount(this.account.getAccountID()).getLoginThread());
 			return;
 		}
-		
+
 		this.account.setLogged(true);
 		this.account.setLoginThread(this);
 		
-		//SocketManager.LOGIN_SEND_Ad_PACKET(this.writer, this.account.getNickname());
-		//SocketManager.LOGIN_SEND_Ac_PACKET(this.writer);
-		//SocketManager.LOGIN_SEND_AH_PACKET(this.writer, 5, 1, 110, 1);
+		SocketManager.LOGIN_SEND_Ad_PACKET(this.writer, this.account.getNickname());
+		SocketManager.LOGIN_SEND_Ac_PACKET(this.writer);
+		SocketManager.LOGIN_SEND_AH_PACKET(this.writer, 5, 1, 110, 1);
+		SocketManager.LOGIN_SEND_AlK_PACKET(this.writer, true);
+		SocketManager.LOGIN_SEND_AQ_PACKET(this.writer, "Ca va vous ?");
 	}
 	
 	public void kick() {

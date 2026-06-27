@@ -11,25 +11,26 @@ import fr.jikosoft.kernel.SocketManager;
 
 
 public class Maps {
-	private short _ID;
+	private Integer _ID;
 	private String _date;
 	private String _mapData;
 	private String _key;
 	private Map<Short, Cell> _cells = new TreeMap<Short, Cell>();
 	
 	
-	public Maps(short id, String date, String mapData, String key, String decryptedData) {
+	public Maps(Integer id, String date, String mapData, String key, String decryptedData) {
 		this._ID = id;
 		this._date = date;
 		this._mapData = mapData;
 		this._key = key;
 		
-		if(!decryptedData.isEmpty()) {
-			_cells = CryptManager.decompileMapData(this, decryptedData);
+		String cellData = (decryptedData != null && !decryptedData.isEmpty()) ? decryptedData : mapData;
+		if(cellData != null && !cellData.isEmpty()) {
+			_cells = CryptManager.decompileMapData(this, cellData);
 		}
 	}
 	
-	public short get_ID() {
+	public Integer get_ID() {
 		return _ID;
 	}
 	
@@ -82,7 +83,7 @@ public class Maps {
 		private short _ID;
 		private Map<Integer, Character> _characters = new TreeMap<Integer, Character>(Collections.reverseOrder());
 		private boolean _isWalkable = true;
-		private short _mapID;
+		private Integer _mapID;
 		
 		public Cell (Maps map, short ID, boolean isWalkable, boolean LoS, int objID) {
 			_mapID = map.get_ID();

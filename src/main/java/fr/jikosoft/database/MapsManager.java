@@ -1,35 +1,30 @@
 package fr.jikosoft.database;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 import fr.jikosoft.kernel.DatabaseManager;
 import fr.jikosoft.kernel.World;
 import fr.jikosoft.objects.Maps;
 
 public class MapsManager {
-	public static void load_Maps() {
-        /*
+	public static void getAll() {
 		try {
-			ResultSet result = DatabaseManager.executeQuery("SELECT * FROM maps;");
+			List<Map<String, Object>> results = DatabaseManager.selectQuery("SELECT * FROM maps");
 			
-			while(result.next()) {
-				Maps map = new Maps(
-						result.getShort("id"),
-						result.getString("date"),
-						result.getString("mapData"),
-						result.getString("key"),
-						result.getString("decryptedData")
-						);
-				
-				World.addMap(map);
+			for (Map<String, Object> result : results) {
+				World.addMap(new Maps(
+					(int) result.get("mapID"),
+					(String) result.get("date"),
+					(String) result.get("mapData"),
+					(String) result.get("key"),
+					(String) result.get("decryptedData")
+				));
 			}
-			
-			DatabaseManager.closeResultSet(result);
-		}	
-		catch(SQLException e) {
-			System.out.println("SQL ERROR: "+e.getMessage());
+		}
+		catch(Exception e) {
+			System.out.println(" ! SQL ERROR: " + e.getMessage());
 			e.printStackTrace();
-		}*/
-	} 
+		}
+	}
 }

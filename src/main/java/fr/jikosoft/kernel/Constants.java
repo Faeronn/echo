@@ -1,7 +1,7 @@
 package fr.jikosoft.kernel;
 
 public class Constants {
-	public static final	String REQUIRED_CLIENT_VERSION = "0.0.1";
+	public static final	String REQUIRED_CLIENT_VERSION = "1.29.0";
 
 	public static short getStartMapID(int classID) {
 		short[] mapIDs = {10298, 10300, 10284, 10299, 10285, 10298, 10276, 10283, 10294, 10292, 10279, 10296, 10289};

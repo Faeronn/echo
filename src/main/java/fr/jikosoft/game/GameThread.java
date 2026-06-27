@@ -101,10 +101,6 @@ public class GameThread implements Runnable{
 	
 	
 	private void parsePacket(String packet) {
-		/*if(_character != null) {
-			_character.refreshLastPacketTime();
-		}*///FIXME
-		
 		if(packet.length()>3 && packet.substring(0,4).equalsIgnoreCase("ping")) {
 			SocketManager.GAME_SEND_PONG(_writer);
 			return;
@@ -123,6 +119,8 @@ public class GameThread implements Runnable{
 			case 'B':
 				parseBasicsPackets(packet);
 				break;
+			case 'M':
+				parseMapsPackets(packet);
 			/*case 'c':
 				parseChanelPacket(packet);
 				break;
@@ -174,6 +172,13 @@ public class GameThread implements Runnable{
 		}
 	}
 
+	public void parseMapsPackets(String packet) {
+		switch(packet.charAt(1)) {
+			case 'd':
+				moveCharacter(packet);
+		}
+	}
+
 	public void parseAccountPackets(String packet) {
 		switch(packet.charAt(1)) {
 			case 'A':
@@ -215,6 +220,9 @@ public class GameThread implements Runnable{
 		}
 	}
 	
+	private void moveCharacter(String packet) {
+		String[] split = packet.substring(2).split("\\|");
+	}
 	
 	private void addCharacter(String packet) {
 		String[] split = packet.substring(2).split("\\|");

@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Random;
 
-import fr.jikosoft.game.GameServer;
 import fr.jikosoft.objects.Character;
 import fr.jikosoft.objects.Maps;
 

@@ -29,8 +29,8 @@ public class GameThread implements Runnable {
 	private BufferedReader _reader;
 	private PrintWriter _writer;
 	private Thread _thread;
-	private Account _account;
-	private Character _character;
+	private Account account;
+	private Character character;
 	private Map<Integer, GameAction> currentGameActions = new TreeMap<>();
 
 	public GameThread(Socket socket) {
@@ -89,9 +89,9 @@ public class GameThread implements Runnable {
 				_reader.close();
 				_writer.close();
 
-				if (_account != null) {
-					// _account.setGameThread(null);
-					_account.setLoginThread(null);
+				if (account != null) {
+					// account.setGameThread(null);
+					account.setLoginThread(null);
 				}
 				if (!_socket.isClosed())
 					_socket.close();
@@ -239,12 +239,12 @@ public class GameThread implements Runnable {
 	private void addCharacter(String packet) {
 		String[] split = packet.substring(2).split("\\|");
 
-		if (split[1] == "12") { // && _account.get_subscriptionTime() == 0
+		if (split[1] == "12") { // && account.get_subscriptionTime() == 0
 			SocketManager.GAME_SEND_AAEs_PACKET(_writer);
 			return;
 		}
 
-		if (_account.getCharacters().size() >= 5) {
+		if (account.getCharacters().size() >= 5) {
 			SocketManager.GAME_SEND_AAEf_PACKET(_writer);
 			return;
 		}
@@ -252,10 +252,10 @@ public class GameThread implements Runnable {
 		Character charac = new Character(CharactersManager.getNextCharacterGUID(), split[0], Integer.parseInt(split[1]),
 				Integer.parseInt(split[2]), 1,
 				Integer.parseInt(split[3]), Integer.parseInt(split[4]), Integer.parseInt(split[5]),
-				_account.getAccountID(),
+				account.getAccountID(),
 				Constants.getStartMapID(Integer.parseInt(split[1])),
 				Constants.getStartCellID(Integer.parseInt(split[1])));
-		_account.addCharacter(charac);
+		account.addCharacter(charac);
 		World.addCharacter(charac);
 		CharactersManager.add_Character(charac);
 
@@ -268,48 +268,44 @@ public class GameThread implements Runnable {
 		int id = Integer.parseInt(split[0]);
 		String answer = (split.length > 1) ? split[1] : "";
 
-		if (!_account.getCharacters().containsKey(id)) {
-			SocketManager.GAME_SEND_ADE_PACKET(_writer);
-		}
-		Character charac = _account.getCharacters().get(id);
+		if (!account.getCharacters().containsKey(id)) SocketManager.GAME_SEND_ADE_PACKET(_writer);
+		Character charac = account.getCharacters().get(id);
 
-		if (charac.get_level() < 20 || (charac.get_level() >= 20)) { // answer.equals(_account.get_answer().replace(" ",
-																		// "%20"))
-			_account.deleteCharacter(id);
+		if (charac.get_level() < 20 || (charac.get_level() >= 20)) { // answer.equals(account.get_answer().replace(" ", // "%20"))
+			account.deleteCharacter(id);
 			World.deleteCharacter(charac);
 			CharactersManager.delete_Character(charac);
 			sendCharacterList();
-		} else
-			SocketManager.GAME_SEND_ADE_PACKET(_writer);
+		} else SocketManager.GAME_SEND_ADE_PACKET(_writer);
 	}
 
 	private void sendCharacterList() { // ALK + subscriptionTime + | + Character Number + | + characterInfo
-		// SocketManager.GAME_SEND_ALK_PACKET(_writer, _account.get_subscriptionTime(),
-		// _account.getCharacters());
-		SocketManager.GAME_SEND_ALK_PACKET(_writer, 1000, _account.getCharacters());
+		// SocketManager.GAME_SEND_ALK_PACKET(_writer, account.get_subscriptionTime(),
+		// account.getCharacters());
+		SocketManager.GAME_SEND_ALK_PACKET(_writer, 1000, account.getCharacters());
 	}
 
 	private void selectCharacter(String packet) {
 		int id = Integer.parseInt(packet.substring(2));
-		this._character = _account.getCharacters().get(id);
-		if (_character != null) {
-			SocketManager.GAME_SEND_Rx_PACKET(_character, "0"); // FIXME Rx_PACKET(_writer, charac.get_mountXpGiven());
-			SocketManager.GAME_SEND_ASK_PACKET(_writer, _character);
+		this.character = account.getCharacters().get(id);
+		if (character != null) {
+			SocketManager.GAME_SEND_Rx_PACKET(character, "0"); // FIXME Rx_PACKET(_writer, charac.get_mountXpGiven());
+			SocketManager.GAME_SEND_ASK_PACKET(_writer, character);
 			SocketManager.GAME_SEND_ZS_PACKET(_writer, "0"); // FIXME ZS_PACKET(_writer, charac.get_alignment());
 			SocketManager.GAME_SEND_cC_PACKET(_writer, "*#%!$pi^"); // FIXME cC_PACKET(_writer, charac.get_channels());
 			SocketManager.GAME_SEND_al_PACKET(_writer);
 			SocketManager.GAME_SEND_SLo_PACKET(_writer, "+");// FIXME SLo_PACKET(_writer, charac.get_spellOption());
 			SocketManager.GAME_SEND_SL_PACKET(_writer);
 			SocketManager.GAME_SEND_AR_PACKET(_writer, "6bk");
-			SocketManager.GAME_SEND_Ow_PACKET(_character);
+			SocketManager.GAME_SEND_Ow_PACKET(character);
 			SocketManager.GAME_SEND_FO_PACKET(_writer, "+");// FIXME FO_PACKET(_writer, charac.get_friendsOption());
-			SocketManager.GAME_SEND_Im_PACKET(_character, "189"); // 189 = "Bienvenue sur DOFUS" Message
-			SocketManager.GAME_SEND_Im_PACKET(_character, "0152;" + "DATE");
-			SocketManager.GAME_SEND_Im_PACKET(_character, "0153;" + "IP");
+			SocketManager.GAME_SEND_Im_PACKET(character, "189"); // 189 = "Bienvenue sur DOFUS" Message
+			SocketManager.GAME_SEND_Im_PACKET(character, "0152;" + "DATE");
+			SocketManager.GAME_SEND_Im_PACKET(character, "0153;" + "IP");
 
 			// Tutorial
-			if (this._character.get_account().getCurrentIPAddress() == "") // FIXME
-				SocketManager.GAME_SEND_TB_PACKET(_character);
+			if (this.character.get_account().getCurrentIPAddress() == "") // FIXME
+				SocketManager.GAME_SEND_TB_PACKET(character);
 
 		} else {
 			SocketManager.GAME_SEND_ASE_PACKET(_writer);
@@ -320,16 +316,16 @@ public class GameThread implements Runnable {
 	private void sendTicket(String packet) {
 		try {
 			int id = Integer.parseInt(packet.substring(2));
-			_account = Echo.gameServer.getWaitingAccount(id);
+			account = Echo.gameServer.getWaitingAccount(id);
 
-			if (_account == null) {
+			if (account == null) {
 				SocketManager.GAME_SEND_ATE_PACKET(_writer);
 				kick();
 			} else {
 				String ip = _socket.getInetAddress().getHostAddress();
-				_account.setGameThread(this);
-				_account.setCurrentIPAddress(ip);
-				Echo.gameServer.deleteWaitingAccount(_account);
+				account.setGameThread(this);
+				account.setCurrentIPAddress(ip);
+				Echo.gameServer.deleteWaitingAccount(account);
 				SocketManager.GAME_SEND_ATK_PACKET(_writer);
 			}
 		} catch (Exception e) {
@@ -374,7 +370,7 @@ public class GameThread implements Runnable {
 				AtomicReference<String> pathRef = new AtomicReference<String>(path);
 				path = pathRef.get();
 				gameAction.arguments = path;
-				SocketManager.GAME_SEND_GA_PACKET(_character, 1, path);
+				SocketManager.GAME_SEND_GA_PACKET(character, 1, path);
 				currentGameActions.put(gameAction.actionID, gameAction);
 		}
 	}
@@ -393,8 +389,8 @@ public class GameThread implements Runnable {
 		
 		switch(gameActionID) {
 			case 1://Deplacement
-				Maps currentMap = _character.get_currentMap();
-				_character.get_currentCell().removeCharacter(_character);
+				Maps currentMap = character.get_currentMap();
+				character.get_currentCell().removeCharacter(character);
 				if(isOk) {
 						SocketManager.GAME_SEND_BN_PACKET(_writer);
 						String path = gameAction.arguments;
@@ -403,26 +399,25 @@ public class GameThread implements Runnable {
 						//Cell targetCell = currentMap.get_cell(CryptManager.convertCodeToCellID(gameAction.packet.substring(gameAction.packet.length()-2)));
 						
 						//On définie la case et on ajoute le personnage sur la case
-						_character.setCurrentCell(nextCell);
-						//_character.set_orientation(CryptManager.getIntByHashedValue(path.charAt(path.length()-3)));
-						_character.get_currentCell().addCharacter(_character);
-						//if(!_character._isGhosts) _character.set_away(false);
-						//currentMap.onPlayerArriveOnCell(_character,_character.get_currentCell().get_ID());
+						character.setCurrentCell(nextCell);
+						//character.set_orientation(CryptManager.getIntByHashedValue(path.charAt(path.length()-3)));
+						character.get_currentCell().addCharacter(character);
+						//if(!character._isGhosts) character.set_away(false);
+						//currentMap.onPlayerArriveOnCell(character,character.get_currentCell().get_ID());
 				}
 				else
 				{
 					//Si le joueur s'arrete sur une case
 					int newCellID = -1;
-					try
-					{
+					try {
 						newCellID = Integer.parseInt(packetData[1]);
-					}catch(Exception e){return;};
-					if(newCellID == -1)return;
+					} catch(Exception e){return;};
+					if(newCellID == -1) return;
 
 					String path = gameAction.arguments;
-					_character.setCurrentCell(currentMap.get_cell(newCellID));
-					//_character.set_orientation(CryptManager.getIntByHashedValue(path.charAt(path.length()-3)));
-					_character.get_currentCell().addCharacter(_character);
+					character.setCurrentCell(currentMap.get_cell(newCellID));
+					//character.set_orientation(CryptManager.getIntByHashedValue(path.charAt(path.length()-3)));
+					character.get_currentCell().addCharacter(character);
 					SocketManager.GAME_SEND_BN_PACKET(_writer);
 				}
 			break;
@@ -431,23 +426,23 @@ public class GameThread implements Runnable {
 	}
 
 	private void gameCreate() {
-		if (this._character == null)
+		if (this.character == null)
 			return;
 
-		SocketManager.GAME_SEND_GCK_PACKET(_writer, _character.get_name());
-		SocketManager.GAME_SEND_As_PACKET(_character);
-		SocketManager.GAME_SEND_ILS_PACKET(_character);
-		SocketManager.GAME_SEND_GDM_PACKET(_writer, _character.get_currentMapID(),
-				_character.get_currentMap().get_date(), _character.get_currentMap().get_key());
+		SocketManager.GAME_SEND_GCK_PACKET(_writer, character.get_name());
+		SocketManager.GAME_SEND_As_PACKET(character);
+		SocketManager.GAME_SEND_ILS_PACKET(character);
+		SocketManager.GAME_SEND_GDM_PACKET(_writer, character.get_currentMapID(),
+				character.get_currentMap().get_date(), character.get_currentMap().get_key());
 		SocketManager.GAME_SEND_BT_PACKET(_writer, Instant.now().toEpochMilli());
-		_character.get_currentMap().addPlayer(_character);
+		character.get_currentMap().addPlayer(character);
 	}
 
 	private void gameInformations() {
-		if (this._character == null)
+		if (this.character == null)
 			return;
 
-		SocketManager.GAME_SEND_GM_PACKET(_writer, _character.get_currentMap().getCharacterGMPackets());
+		SocketManager.GAME_SEND_GM_PACKET(_writer, character.get_currentMap().getCharacterGMPackets());
 		// SocketManager.GAME_SEND_GM_PACKET(_writer,
 		// "GM|+407;1;0;-1;875;-4;9059^100;0;860000;3792b9;fed880;0,0,0,0,0;;0");
 		SocketManager.GAME_SEND_GDK_PACKET(_writer);
@@ -491,9 +486,9 @@ public class GameThread implements Runnable {
 				return;
 			}
 
-			_character.get_currentCell().removeCharacter(_character);
+			character.get_currentCell().removeCharacter(character);
 			SocketManager.GAME_SEND_MAPDATA(_writer, mapID, newMap.get_date(), newMap.get_key());
-			newMap.addPlayer(_character);
+			newMap.addPlayer(character);
 			SocketManager.GAME_SEND_CONSOLE_MESSAGE_PACKET(_writer, "Le joueur a ete teleporte");
 		}
 	}
@@ -521,8 +516,8 @@ public class GameThread implements Runnable {
 			Echo.gameServer.deleteClient(this);
 
 			/*
-			 * if(_account != null)
-			 * _account.logOut();
+			 * if(account != null)
+			 * account.logOut();
 			 */
 
 			if (!_socket.isClosed())

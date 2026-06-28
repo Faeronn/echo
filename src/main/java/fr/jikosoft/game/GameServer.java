@@ -15,13 +15,13 @@ public class GameServer implements Runnable {
 	private ServerSocket serverSocket;
 	private Thread thread;
 	
-	private int _maxPlayer = 0;
-	private long _startTime;
+	private int allowedPlayerAmount = 0;
+	private long serverStartTime;
 	
 	public GameServer() {
 		try {
 			serverSocket = new ServerSocket(Echo.GAME_PORT);
-			_startTime = System.currentTimeMillis();
+			serverStartTime = System.currentTimeMillis();
 			
 			thread = new Thread(this);
 			thread.start();
@@ -36,14 +36,12 @@ public class GameServer implements Runnable {
 		while(Echo.isRunning) {
 			try {
 				clients.add(new GameThread(serverSocket.accept()));
-				if(clients.size() > _maxPlayer)
-					_maxPlayer = clients.size();
+				if(clients.size() > allowedPlayerAmount) allowedPlayerAmount = clients.size();
 			}
 			catch(IOException e) {
 				System.out.println("IOException: " + e.getMessage());
 				try {
-					if(!serverSocket.isClosed())
-						serverSocket.close();
+					if(!serverSocket.isClosed()) serverSocket.close();
 					System.exit(1);
 				}
 				catch(IOException e1){
@@ -56,8 +54,7 @@ public class GameServer implements Runnable {
 	public void deleteClient(GameThread gameThread) {
 		clients.remove(gameThread);
 		
-		if(clients.size() > _maxPlayer)
-			_maxPlayer = clients.size();
+		if(clients.size() > allowedPlayerAmount) allowedPlayerAmount = clients.size();
 	}
 	
 	
@@ -76,9 +73,12 @@ public class GameServer implements Runnable {
 		waitingAccounts.add(account);
 	}
 	
-	public static long getServerTime() {
-		final Date _date = new Date();
-		return _date.getTime();// + 3600000L;
+	public long getServerTime() {
+		final Date date = new Date();
+		return date.getTime();// + 3600000L;
 	}
 
+	public long getServerStartTime() {
+		return serverStartTime;
+	}
 }

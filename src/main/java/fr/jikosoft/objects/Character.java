@@ -3,10 +3,19 @@ package fr.jikosoft.objects;
 import java.util.Map;
 import java.util.TreeMap;
 
+import fr.jikosoft.kernel.Constants;
 import fr.jikosoft.kernel.World;
 import fr.jikosoft.objects.Maps.Cell;
 
 public class Character {
+	private static final int START_KAMAS = 1000;
+	private static final int MAX_ENERGY = 10000;
+	private static final int BASE_HP = 50;
+	private static final int HP_PER_LEVEL = 5;
+	private static final int BASE_PROSPECTING = 100;
+	private static final int BASE_AP = 6;
+	private static final int BASE_MP = 3;
+
 	private int _GUID;
 	private String _name;
 	private int _sex;
@@ -107,15 +116,42 @@ public class Character {
 	}
 	
 	public String getCharacterStats() {
-		String data = "";
-		String patern =  "xp" + "," + "minXp" + "," + "maxXp" + "|" + "kamas" + "|" + "capital" + "|" + "spellPoints" + "|" + 
-				"align" + "~"  + "align" + "," + "alignLevel" + "," + "grade" + "," + "honor" + "," + "dishonor" + "," + "showWings" + "|" +
-				"hp" + "," + "maxHp" + "|" + "energy" + "," + "maxEnergy" + "|" + "initiative"+ "|" + "prospecting" + "|" +
-				"baseAP" + "," + "bonusItemAP"  + "," + "donAP" + "," + "buffAP" + "," + "totalAP" + "|" +
-				"baseMP" + "," + "bonusItemMP"  + "," + "donMP" + "," + "buffMP" + "," + "totalMP" + "|";
-		
-		data+= "0,0,100|" + "1000|" + "0|" + "0|" + "0~0,0,0,0,0,0|" + "55,55|" + "10000,10000|" + "0|" + "100|" + "6,0,0,0,6|" + "3,0,0,0,3|"; 
-		return data;
+		int level = Math.max(1, _level);
+		int capital = (level - 1) * 5;
+		int spellPoints = level - 1;
+		int maxHp = BASE_HP + (level * HP_PER_LEVEL);
+
+		StringBuilder data = new StringBuilder();
+		data.append("0,0,100|");
+		data.append(START_KAMAS).append("|");
+		data.append(capital).append("|");
+		data.append(spellPoints).append("|");
+		data.append("0~0,0,0,0,0,0|");
+		data.append(maxHp).append(",").append(maxHp).append("|");
+		data.append(MAX_ENERGY).append(",").append(MAX_ENERGY).append("|");
+		data.append("0|");
+		data.append(BASE_PROSPECTING).append("|");
+		data.append(BASE_AP).append(",0,0,0,").append(BASE_AP).append("|");
+		data.append(BASE_MP).append(",0,0,0,").append(BASE_MP).append("|");
+		appendEmptyCharacterStats(data);
+
+		return data.toString();
+	}
+
+	public String getCharacterSpellList() {
+		StringBuilder data = new StringBuilder();
+		int[] spells = Constants.getStartSpells(_class);
+
+		for (int i = 0; i < spells.length; i++) {
+			data.append(spells[i]).append("~1~").append(Constants.getStartSpellPlace(i)).append(";");
+		}
+
+		return data.toString();
+	}
+
+	private void appendEmptyCharacterStats(StringBuilder data) {
+		for (int i = 0; i < 18; i++) data.append("0,0,0,0|");
+		for (int i = 0; i < 22; i++) data.append("0,0,0,0,0|");
 	}
 	
 	

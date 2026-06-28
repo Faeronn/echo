@@ -11,6 +11,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import fr.jikosoft.database.CharactersManager;
@@ -31,9 +32,10 @@ public class GameThread implements Runnable {
 	private Thread _thread;
 	private Account account;
 	private Character character;
+	private final AtomicBoolean disconnected = new AtomicBoolean(false);
 	private Map<Integer, GameAction> currentGameActions = new TreeMap<>();
 
-	public GameThread(Socket socket) {
+	public GameThread(Socket socket) throws IOException {
 		try {
 			_socket = socket;
 			_reader = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
@@ -43,14 +45,9 @@ public class GameThread implements Runnable {
 			_thread.setDaemon(true);
 			_thread.start();
 		} catch (IOException e) {
-			try {
-				System.out.println("IOException" + e.getMessage());
-				if (!_socket.isClosed()) {
-					_socket.close();
-				}
-			} catch (IOException e1) {
-				System.out.println("IOException" + e.getMessage());
-			}
+			System.out.println("IOException" + e.getMessage());
+			closeSocketQuietly();
+			throw e;
 		}
 	}
 
@@ -73,7 +70,7 @@ public class GameThread implements Runnable {
 			char charCur[] = new char[1];
 
 			SocketManager.GAME_SEND_HG_PACKET(_writer);
-			while (_reader.read(charCur, 0, 1) != -1 && Echo.isRunning) {
+			while (Echo.isRunning && !disconnected.get() && _reader.read(charCur, 0, 1) != -1) {
 				if (charCur[0] != '\u0000' && charCur[0] != '\n' && charCur[0] != '\r') {
 					packet += charCur[0];
 				} else if (!packet.isEmpty()) {
@@ -84,19 +81,8 @@ public class GameThread implements Runnable {
 				}
 			}
 		} catch (IOException e) {
-			try {
+			if (!disconnected.get()) {
 				System.out.println(e.getMessage());
-				_reader.close();
-				_writer.close();
-
-				if (account != null) {
-					// account.setGameThread(null);
-					account.setLoginThread(null);
-				}
-				if (!_socket.isClosed())
-					_socket.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
 			}
 		}
 
@@ -239,11 +225,6 @@ public class GameThread implements Runnable {
 	private void addCharacter(String packet) {
 		String[] split = packet.substring(2).split("\\|");
 
-		if (split[1] == "12") { // && account.get_subscriptionTime() == 0
-			SocketManager.GAME_SEND_AAEs_PACKET(_writer);
-			return;
-		}
-
 		if (account.getCharacters().size() >= 5) {
 			SocketManager.GAME_SEND_AAEf_PACKET(_writer);
 			return;
@@ -295,7 +276,7 @@ public class GameThread implements Runnable {
 			SocketManager.GAME_SEND_cC_PACKET(_writer, "*#%!$pi^"); // FIXME cC_PACKET(_writer, charac.get_channels());
 			SocketManager.GAME_SEND_al_PACKET(_writer);
 			SocketManager.GAME_SEND_SLo_PACKET(_writer, "+");// FIXME SLo_PACKET(_writer, charac.get_spellOption());
-			SocketManager.GAME_SEND_SL_PACKET(_writer);
+			SocketManager.GAME_SEND_SL_PACKET(_writer, character);
 			SocketManager.GAME_SEND_AR_PACKET(_writer, "6bk");
 			SocketManager.GAME_SEND_Ow_PACKET(character);
 			SocketManager.GAME_SEND_FO_PACKET(_writer, "+");// FIXME FO_PACKET(_writer, charac.get_friendsOption());
@@ -512,31 +493,67 @@ public class GameThread implements Runnable {
 	}
 
 	public void kick() {
-		try {
+		if (!disconnected.compareAndSet(false, true)) {
+			return;
+		}
+
+		if (Echo.gameServer != null) {
 			Echo.gameServer.deleteClient(this);
+		}
 
-			/*
-			 * if(account != null)
-			 * account.logOut();
-			 */
+		removeCharacterFromMap();
+		cleanupAccountState();
+		closeSocketQuietly();
+		closeReaderQuietly();
+		closeWriterQuietly();
 
-			if (!_socket.isClosed())
-				_socket.close();
-
-			_reader.close();
-			_writer.close();
+		if (_thread != null && _thread != Thread.currentThread()) {
 			_thread.interrupt();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		}
+	}
+
+	private void removeCharacterFromMap() {
+		if (character != null && character.get_currentCell() != null) {
+			character.get_currentCell().removeCharacter(character);
+		}
+	}
+
+	private void cleanupAccountState() {
+		if (account != null && account.getGameThread() == this) {
+			account.setGameThread(null);
+			account.setLogged(false);
+			account.setCurrentIPAddress("");
+		}
+	}
+
+	private void closeSocketQuietly() {
+		try {
+			if (_socket != null && !_socket.isClosed()) {
+				_socket.close();
+			}
+		} catch (IOException e) {
+			System.out.println("IOException: " + e.getMessage());
+		}
+	}
+
+	private void closeReaderQuietly() {
+		try {
+			if (_reader != null) {
+				_reader.close();
+			}
+		} catch (IOException e) {
+			System.out.println("IOException: " + e.getMessage());
+		}
+	}
+
+	private void closeWriterQuietly() {
+		if (_writer != null) {
+			_writer.close();
 		}
 	}
 
 	public void closeSocket() {
-		try {
-			this._socket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		kick();
 	}
 
 	public PrintWriter get_writer() {

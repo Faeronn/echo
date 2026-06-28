@@ -35,7 +35,9 @@ public class GameServer implements Runnable {
 	public void run() {
 		while(Echo.isRunning) {
 			try {
-				clients.add(new GameThread(serverSocket.accept()));
+				GameThread clientThread = new GameThread(serverSocket.accept());
+				System.out.println("> Game : New Client - " + clientThread.toString());
+				clients.add(clientThread);
 				if(clients.size() > allowedPlayerAmount) allowedPlayerAmount = clients.size();
 			}
 			catch(IOException e) {
@@ -52,6 +54,7 @@ public class GameServer implements Runnable {
 	}
 	
 	public void deleteClient(GameThread gameThread) {
+		System.out.println("> Game : Shutting Client - " + gameThread.toString());
 		clients.remove(gameThread);
 		
 		if(clients.size() > allowedPlayerAmount) allowedPlayerAmount = clients.size();

@@ -409,8 +409,8 @@ public class SocketManager {
 			System.out.println("Game: Send >> " + packet);
 	}
 	
-	public static void GAME_SEND_SL_PACKET(PrintWriter writer) { //Spell List Packet
-		String packet = "SL" + "121~1~b;125~1~c;128~1~d;"; //FIXME "SL" + "spellList";
+	public static void GAME_SEND_SL_PACKET(PrintWriter writer, Character charac) { //Spell List Packet
+		String packet = "SL" + charac.getCharacterSpellList();
 		send(writer, packet);
 		
 		if(Echo.DEBUG_MODE)

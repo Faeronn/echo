@@ -17,7 +17,7 @@ public class Character {
 	private int _color3;
 	private Account _account;
 	private Maps _currentMap;
-	private Cell _currentCell;
+	private Cell currentCell;
 	private Map<Integer, Stat> _stats = new TreeMap<Integer, Stat>();
 	
 	public Character(int guid, String name, int cClass, int sex, int level, int color1, int color2, int color3, int accountID,
@@ -32,7 +32,7 @@ public class Character {
 		this._color3 = color3;
 		this._account = World.getAccount(accountID);
 		this._currentMap = World.getMap(currentMapID);
-		this._currentCell = _currentMap.get_cell(currentCellID);
+		this.currentCell = _currentMap.get_cell(currentCellID);
 	}
 	
 	public int get_GUID() { 
@@ -79,12 +79,16 @@ public class Character {
 		return _currentMap;
 	}
 	
-	public short get_currentCellID() {
-		return _currentCell.get_ID();
+	public int get_currentCellID() {
+		return currentCell.get_ID();
 	}
 	
 	public Cell get_currentCell() {
-		return _currentCell;
+		return currentCell;
+	}
+
+	public void setCurrentCell(Cell cell) {
+		this.currentCell = cell;
 	}
 	
 	public String getCharacterData() {
@@ -124,7 +128,7 @@ public class Character {
 		
 		
 		StringBuilder str = new StringBuilder();
-		str.append(_currentCell.get_ID() + ";");
+		str.append(currentCell.get_ID() + ";");
 		str.append("1;");      				     						//FIXME: ORIENTATION
 		str.append("0;");												//FIXME:?
 		str.append(_GUID + ";");

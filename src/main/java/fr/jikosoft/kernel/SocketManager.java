@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Random;
 
+import fr.jikosoft.game.GameServer;
 import fr.jikosoft.objects.Character;
 import fr.jikosoft.objects.Maps;
 
@@ -534,7 +535,24 @@ public class SocketManager {
 			}
 		}
 	}
-	
+
+	public static void GAME_SEND_GA_PACKET(Character character, Integer actionID, String path) {
+		Maps map = character.get_currentMap();
+		String packet = "GA" + actionID + ";" + actionID + ";" +  character.get_GUID() + ";a" + CryptManager.convertCellIDtoCode(character.get_currentCellID()) + path;
+
+		for(Character mapCharacter : map.getCharacters()) sendToCharacter(mapCharacter, packet);
+		if(Echo.DEBUG_MODE) System.out.println("Game: Map | Send >> " + packet);
+	}
+
+	public static void GAME_SEND_GA_PACKET_TO_MAP(Maps map, String gameActionID, int actionID,String s1, String s2)
+	{
+		String packet = "GA"+gameActionID+";"+actionID+";"+s1;
+		if(!s2.equals(""))packet += ";"+s2;
+		
+		for(Character character : map.getCharacters()) sendToCharacter(character, packet);
+		if(Echo.DEBUG_MODE) System.out.println("Game: Map | Send >> " + packet);
+	}
+
 	public static void GAME_SEND_GDK_PACKET(PrintWriter writer) { //Map Loaded Packet
 		String packet = "GDK";
 		send(writer, packet);
@@ -550,9 +568,6 @@ public class SocketManager {
 		if(Echo.DEBUG_MODE)
 			System.out.println("Game: Send >> " + packet);
 	}
-	
-	
-	
 	
 	public static void GAME_SEND_BN_PACKET(PrintWriter writer) {
 		String packet = "BN";
@@ -576,5 +591,17 @@ public class SocketManager {
 		
 		if(Echo.DEBUG_MODE)
 			System.out.println("Game: Send >> " + packet);
+	}
+
+	public static void GAME_SEND_CONSOLE_MESSAGE_PACKET(PrintWriter writer, String message) {
+		String packet = "BAT2" + message;
+		send(writer, packet);
+		if(Echo.DEBUG_MODE) System.out.println("Game: Send >> " + packet);
+	}
+
+	public static void GAME_SEND_MAPDATA(PrintWriter writer, int id, String date, String key) {
+		String packet = "GDM|" + id + "|" + date + "|" + key;
+		send(writer, packet);
+		if(Echo.DEBUG_MODE) System.out.println("Game: Send >> " + packet);
 	}
 }

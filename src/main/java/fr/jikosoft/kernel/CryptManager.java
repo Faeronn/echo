@@ -95,8 +95,8 @@ public class CryptManager {
 	}
 
 	
-	public static Map<Short, Cell> decompileMapData(Maps map, String dData) {
-		Map<Short, Cell> cells = new TreeMap<Short, Cell>();
+	public static Map<Integer, Cell> decompileMapData(Maps map, String dData) {
+		Map<Integer, Cell> cells = new TreeMap<>();
 		
 		for (int f = 0; f < dData.length(); f += 10) {
 			String cellData = dData.substring(f, f + 10);
@@ -112,7 +112,7 @@ public class CryptManager {
 		    int layerObject2 = ((cellInfo.get(0) & 2) << 12) + ((cellInfo.get(7) & 1) << 12) + (cellInfo.get(8) << 6) + cellInfo.get(9); 
 		    int obj = (layerObject2Interactive?layerObject2:-1);
 		  
-		    cells.put((short) (f/10), new Cell(map, (short) (f/10), Type!=0, IsSightBlocker, obj));
+		    cells.put((int) (f/10), new Cell(map, (int) (f/10), Type!=0, IsSightBlocker, obj));
 	    }
 		return cells;
 	}
@@ -129,5 +129,25 @@ public class CryptManager {
 			}
 		}	
 		return -1;
+	}
+
+	public static String convertCellIDtoCode(int cellID) {
+		char[] HASH = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '_'};
+
+		int char1 = cellID/64,char2 = cellID%64;
+		return  HASH[char1]+""+HASH[char2];
+	}
+
+	public static int convertCodeToCellID(String cellCode) {
+		char[] HASH = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '_'};
+
+		char char1 = cellCode.charAt(0), char2 = cellCode.charAt(1);
+		int code1= 0, code2= 0, a = 0;
+		while (a < HASH.length) {
+			if (HASH[a] == char1) code1 = a * 64;
+			if (HASH[a] == char2) code2 = a;
+			a++;
+		}
+		return (code1 + code2);
 	}
 }

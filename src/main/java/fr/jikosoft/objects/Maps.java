@@ -15,7 +15,7 @@ public class Maps {
 	private String _date;
 	private String _mapData;
 	private String _key;
-	private Map<Short, Cell> _cells = new TreeMap<Short, Cell>();
+	private Map<Integer, Cell> _cells = new TreeMap<>();
 	
 	
 	public Maps(Integer id, String date, String mapData, String key, String decryptedData) {
@@ -46,7 +46,7 @@ public class Maps {
 		return _key;
 	}
 	
-	public Cell get_cell(short guid) {
+	public Cell get_cell(int guid) {
 		return _cells.get(guid);
 	}
 	
@@ -80,30 +80,32 @@ public class Maps {
 	}
 	
 	public static class Cell {
-		private short _ID;
-		private Map<Integer, Character> _characters = new TreeMap<Integer, Character>(Collections.reverseOrder());
+		private Integer _ID;
+		private Map<Integer, Character> characters = new TreeMap<Integer, Character>(Collections.reverseOrder());
 		private boolean _isWalkable = true;
 		private Integer _mapID;
 		
-		public Cell (Maps map, short ID, boolean isWalkable, boolean LoS, int objID) {
+		public Cell (Maps map, int ID, boolean isWalkable, boolean LoS, int objID) {
 			_mapID = map.get_ID();
 			_ID = ID;
 			_isWalkable = isWalkable;
 		}
 		
-		public short get_ID() {
+		public int get_ID() {
 			return _ID;
 		}
 		
 		public void addCharacter(Character character) {
-			_characters.put(character.get_GUID(), character);
+			characters.put(character.get_GUID(), character);
+		}
+
+		public void removeCharacter(Character character) {
+			characters.remove(character.get_GUID());
 		}
 		
 		public Map<Integer, Character> getCharacters() {
-			if(_characters == null) {
-				return new TreeMap<Integer, Character>();
-			}
-			return _characters;
+			if(characters == null) return new TreeMap<Integer, Character>();
+			return characters;
 		}
 		
 	}

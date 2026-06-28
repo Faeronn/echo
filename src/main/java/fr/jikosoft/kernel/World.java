@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import fr.jikosoft.database.AccountsManager;
+import fr.jikosoft.database.CharactersManager;
 import fr.jikosoft.database.MapsManager;
 import fr.jikosoft.objects.Account;
 import fr.jikosoft.objects.Character;
@@ -28,7 +29,7 @@ public class World {
 		System.out.println("\t\t> Chargement des Comptes : OK. (" + World.Accounts.size() + ")\n");
 
 		System.out.println("\t\t> Chargement des Personnages ....");
-		//SQLManager.load_Characters();
+		CharactersManager.load_Characters();
 		System.out.println("\t\t> Chargement des Personnages : OK. (" + World.Characters.size() + ")\n");
 
 		System.out.println("\t\t> Récupération des BANS IP ....");

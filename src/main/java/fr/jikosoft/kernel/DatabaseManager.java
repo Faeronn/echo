@@ -3,12 +3,9 @@ package fr.jikosoft.kernel;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.sql.ResultSet;
 import java.util.List;
-import java.util.Map;
 
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariConfig;
@@ -41,28 +38,41 @@ public class DatabaseManager {
 		if (dataSource != null && !dataSource.isClosed()) dataSource.close();
 	}
 
-	public static List<Map<String, Object>> selectQuery(String query, Object... parameters) {
-		List<Map<String, Object>> results = new ArrayList<>();
+	@FunctionalInterface
+	public interface RowMapper<T> {
+		T map(ResultSet rs) throws SQLException;
+	}
+
+	public static <T> List<T> query(String query, RowMapper<T> mapper, Object... parameters) {
+		List<T> results = new ArrayList<>();
+
 		try (Connection connection = dataSource.getConnection();
-			 PreparedStatement statement = connection.prepareStatement(query)) {
-			
-			for (int i = 0; i < parameters.length; i++) statement.setObject(i + 1, parameters[i]);
+			PreparedStatement statement = connection.prepareStatement(query)) {
+
+			bindParameters(statement, parameters);
 
 			try (ResultSet resultSet = statement.executeQuery()) {
-				ResultSetMetaData metaData = resultSet.getMetaData();
-				int columnCount = metaData.getColumnCount();
-
-				while (resultSet.next()) {
-					Map<String, Object> row = new HashMap<>();
-					for (int i = 1; i <= columnCount; i++) {
-						row.put(metaData.getColumnName(i), resultSet.getObject(i));
-					}
-					results.add(row);
-				}
+				while (resultSet.next()) results.add(mapper.map(resultSet));
 			}
-		} catch (SQLException e) {
-			System.out.println(" ! SQL QUERY ERROR: " + e.getMessage() + ".\n");
+		} catch (SQLException sqlError) {
+			throw new RuntimeException(" ! SQL QUERY ERROR: " + query, sqlError);
 		}
+
 		return results;
+	}
+
+	public static int update(String query, Object... parameters) {
+		try (Connection connection = dataSource.getConnection();
+			PreparedStatement statement = connection.prepareStatement(query)) {
+
+			bindParameters(statement, parameters);
+			return statement.executeUpdate();
+		} catch (SQLException sqlError) {
+			throw new RuntimeException(" ! SQL UPDATE ERROR: " + query, sqlError);
+		}
+	}
+
+	private static void bindParameters(PreparedStatement statement, Object... parameters) throws SQLException {
+		for (int i = 0; i < parameters.length; i++) statement.setObject(i + 1, parameters[i]);
 	}
 }

@@ -1,31 +1,28 @@
 package fr.jikosoft.database;
 
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.util.Locale;
 
 import fr.jikosoft.kernel.DatabaseManager;
 import fr.jikosoft.objects.Account;
 import fr.jikosoft.kernel.World;
 
 public class AccountsManager {
+
+	
 	public static void getAll() {
-		try {
-			List<Map<String, Object>> results = DatabaseManager.selectQuery("SELECT * FROM account");
-			
-			for (Map<String, Object> result : results) {
-				World.addAccount(new Account(
-					(int) result.get("accountID"),
-					((String) result.get("username")).toLowerCase(),
-					(String) result.get("password"),
-					(String) result.get("nickname"),
-					((int) result.get("isBanned") == 1)
-				));
-			}
-		}
-		catch(Exception e) {
-			System.out.println(" ! SQL ERROR: " + e.getMessage());
-			e.printStackTrace();
-		}
+		DatabaseManager.query("SELECT * FROM account", AccountsManager::mapAccount).forEach(World::addAccount);
+	}
+
+	private static Account mapAccount(ResultSet resultSet) throws SQLException {
+		return new Account(
+			resultSet.getInt("accountID"), 
+			resultSet.getString("username").toLowerCase(Locale.ROOT), 
+			resultSet.getString("password"), 
+			resultSet.getString("nickname"), 
+			resultSet.getBoolean("isBanned")
+		);
 	}
 
 	public static void update(Account account) {

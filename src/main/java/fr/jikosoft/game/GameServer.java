@@ -6,26 +6,25 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import fr.jikosoft.kernel.Echo;
-import fr.jikosoft.kernel.World;
 import fr.jikosoft.objects.Account;
 
 public class GameServer implements Runnable {
 	
-	private ArrayList<GameThread> _clients = new ArrayList<GameThread>();
-	private ArrayList<Account> _waitingAccounts = new ArrayList<Account>();
-	private ServerSocket _serverSocket;
-	private Thread _thread;
+	private ArrayList<GameThread> clients = new ArrayList<GameThread>();
+	private ArrayList<Account> waitingAccounts = new ArrayList<Account>();
+	private ServerSocket serverSocket;
+	private Thread thread;
 	
 	private int _maxPlayer = 0;
 	private long _startTime;
 	
 	public GameServer() {
 		try {
-			_serverSocket = new ServerSocket(Echo.GAME_PORT);
+			serverSocket = new ServerSocket(Echo.GAME_PORT);
 			_startTime = System.currentTimeMillis();
 			
-			_thread = new Thread(this);
-			_thread.start();
+			thread = new Thread(this);
+			thread.start();
 		}
 		catch (IOException e) {
 			System.out.println("IOException: " + e.getMessage());
@@ -36,15 +35,15 @@ public class GameServer implements Runnable {
 	public void run() {
 		while(Echo.isRunning) {
 			try {
-				_clients.add(new GameThread(_serverSocket.accept()));
-				if(_clients.size() > _maxPlayer)
-					_maxPlayer = _clients.size();
+				clients.add(new GameThread(serverSocket.accept()));
+				if(clients.size() > _maxPlayer)
+					_maxPlayer = clients.size();
 			}
 			catch(IOException e) {
 				System.out.println("IOException: " + e.getMessage());
 				try {
-					if(!_serverSocket.isClosed())
-						_serverSocket.close();
+					if(!serverSocket.isClosed())
+						serverSocket.close();
 					System.exit(1);
 				}
 				catch(IOException e1){
@@ -55,27 +54,26 @@ public class GameServer implements Runnable {
 	}
 	
 	public void deleteClient(GameThread gameThread) {
-		_clients.remove(gameThread);
+		clients.remove(gameThread);
 		
-		if(_clients.size() > _maxPlayer)
-			_maxPlayer = _clients.size();
+		if(clients.size() > _maxPlayer)
+			_maxPlayer = clients.size();
 	}
 	
 	
 	public synchronized Account getWaitingAccount(int GUID) {
-		for (int i = 0; i < _waitingAccounts.size(); i++) {
-			if(_waitingAccounts.get(i).getAccountID() == GUID)
-				return _waitingAccounts.get(i);
+		for (int i = 0; i < waitingAccounts.size(); i++) {
+			if(waitingAccounts.get(i).getAccountID() == GUID) return waitingAccounts.get(i);
 		}
 		return null;
 	}
 	
-	public synchronized void deleteWaitingAccount(Account acc) {
-		_waitingAccounts.remove(acc);
+	public synchronized void deleteWaitingAccount(Account account) {
+		waitingAccounts.remove(account);
 	}
 	
-	public synchronized void addWaitingAccount(Account acc) {
-		_waitingAccounts.add(acc);
+	public synchronized void addWaitingAccount(Account account) {
+		waitingAccounts.add(account);
 	}
 	
 	public static long getServerTime() {
